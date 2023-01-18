@@ -3,6 +3,7 @@ import { MongoClient, ObjectId } from "mongodb";
 import * as dotenv from "dotenv";
 import cors from "cors";
 import dayjs from "dayjs";
+import bcrypt, { hash } from "bcrypt";
 import { validationSignUp, validationBalance } from "./schemas/index.js";
 
 const app = express();
@@ -25,11 +26,18 @@ const records = db.collection("records");
 const users = db.collection("users");
 
 app.post("/sign-up", async (req, res) => {
+  const { name, email, password, confirmPassword } = req.body;
   const { value, error } = validationSignUp.validate(req.body, { abortEarly: false });
+
   if (error) return res.status(422).send({ message: error.details.map((m) => m.message) });
 
   try {
-    users.insertOne({ ...value });
+    const isUserExist = await users.findOne({ $or: [{ email }, { name }] });
+    const passwordHash = await hash(password, 8);
+
+    if (isUserExist) return res.status(422).send("usuário já cadastrado");
+
+    await users.insertOne({ name, email, password: passwordHash });
 
     res.sendStatus(201);
   } catch (err) {
@@ -40,9 +48,12 @@ app.post("/sign-up", async (req, res) => {
 app.post("/sign-in", async (req, res) => {
   const { email, password } = req.body;
   try {
-    const isUserExist = await users.findOne({ $and: [{ email }, { password }] });
+    const isUserExist = await users.findOne({ email });
+    const match = await  bcrypt.compare(password, isUserExist.password)
 
-    if (!isUserExist) return res.status(401).send("verifique se os dados foram inseridos corretamente");
+    if (!isUserExist || !match) {
+      return res.status(401).send("verifique se os dados foram inseridos corretamente");
+    }
 
     res.sendStatus(200);
   } catch (err) {
