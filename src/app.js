@@ -58,7 +58,19 @@ app.post("/income", async (req, res) => {
   } catch (err) {
     res.status(500).send(err);
   }
-});f
+});
+
+app.post("/expense", async (req, res) => {
+  const { value, description } = req.body;
+  const date = dayjs().format("DD/MM");
+
+  try {
+    await registries.insertOne({ date, value, description, type: "expense" });
+    res.sendStatus(201);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
 
 
 
