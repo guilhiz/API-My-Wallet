@@ -48,6 +48,18 @@ app.post("/login", async (req, res) => {
   }
 });
 
+app.post("/income", async (req, res) => {
+  const { value, description } = req.body;
+  const date = dayjs().format("DD/MM");
+
+  try {
+    await registries.insertOne({ date, value, description, type: "income" });
+    res.sendStatus(201);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});f
+
 
 
 app.listen(PORT, () => {
