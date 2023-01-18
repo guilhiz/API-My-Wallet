@@ -3,7 +3,7 @@ import { MongoClient, ObjectId } from "mongodb";
 import * as dotenv from "dotenv";
 import cors from "cors";
 import dayjs from "dayjs";
-import { validationSignUp } from "./schemas/index.js";
+import { validationSignUp, validationBalance } from "./schemas/index.js";
 
 const app = express();
 dotenv.config();
@@ -51,11 +51,13 @@ app.post("/sign-in", async (req, res) => {
 });
 
 app.post("/income", async (req, res) => {
-  const { value, description } = req.body;
   const date = dayjs().format("DD/MM");
+  const { value, error } = validationBalance.validate(req.body, { abortEarly: false });
+
+  if (error) return res.status(422).send({ message: error.details.map((m) => m.message) });
 
   try {
-    await records.insertOne({ date, value, description, type: "income" });
+    await records.insertOne({ ...value, date, type: "income" });
     res.sendStatus(201);
   } catch (err) {
     res.status(500).send(err);
@@ -63,11 +65,13 @@ app.post("/income", async (req, res) => {
 });
 
 app.post("/expense", async (req, res) => {
-  const { value, description } = req.body;
   const date = dayjs().format("DD/MM");
+  const { value, error } = validationBalance.validate(req.body, { abortEarly: false });
+
+  if (error) return res.status(422).send({ message: error.details.map((m) => m.message) });
 
   try {
-    await records.insertOne({ date, value, description, type: "expense" });
+    await records.insertOne({ ...value, date, type: "expense" });
     res.sendStatus(201);
   } catch (err) {
     res.status(500).send(err);
