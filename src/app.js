@@ -3,7 +3,7 @@ import { MongoClient, ObjectId } from "mongodb";
 import * as dotenv from "dotenv";
 import cors from "cors";
 import dayjs from "dayjs";
-import joi from "joi";
+import { validationSignUp } from "./schemas/index.js";
 
 const app = express();
 dotenv.config();
@@ -21,13 +21,15 @@ try {
 }
 
 db = mongoClient.db();
-const registries = db.collection("registries");
+const records = db.collection("records");
 const users = db.collection("users");
 
-app.post("/register", async (req, res) => {
-  const { name, email, password, confirmPassword } = req.body;
+app.post("/sign-up", async (req, res) => {
+  const { value, error } = validationSignUp.validate(req.body, { abortEarly: false });
+  if (error) return res.status(422).send({ message: error.details.map((m) => m.message) });
+
   try {
-    users.insertOne({ name, email, password, confirmPassword });
+    users.insertOne({ ...value });
 
     res.sendStatus(201);
   } catch (err) {
@@ -35,7 +37,7 @@ app.post("/register", async (req, res) => {
   }
 });
 
-app.post("/login", async (req, res) => {
+app.post("/sign-in", async (req, res) => {
   const { email, password } = req.body;
   try {
     const isUserExist = await users.findOne({ $and: [{ email }, { password }] });
@@ -53,7 +55,7 @@ app.post("/income", async (req, res) => {
   const date = dayjs().format("DD/MM");
 
   try {
-    await registries.insertOne({ date, value, description, type: "income" });
+    await records.insertOne({ date, value, description, type: "income" });
     res.sendStatus(201);
   } catch (err) {
     res.status(500).send(err);
@@ -65,14 +67,22 @@ app.post("/expense", async (req, res) => {
   const date = dayjs().format("DD/MM");
 
   try {
-    await registries.insertOne({ date, value, description, type: "expense" });
+    await records.insertOne({ date, value, description, type: "expense" });
     res.sendStatus(201);
   } catch (err) {
     res.status(500).send(err);
   }
 });
 
+app.get("/records", async (req, res) => {
+  try {
+    const allRecords = await records.find({}).toArray();
 
+    res.status(200).send(allRecords);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server running in port: ${PORT}`);
