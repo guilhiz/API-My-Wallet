@@ -35,6 +35,19 @@ app.post("/register", async (req, res) => {
   }
 });
 
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const isUserExist = await users.findOne({ $and: [{ email }, { password }] });
+
+    if (!isUserExist) return res.status(401).send("verifique se os dados foram inseridos corretamente");
+
+    res.sendStatus(200);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
 
 
 app.listen(PORT, () => {
