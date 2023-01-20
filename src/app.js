@@ -58,7 +58,7 @@ app.post("/sign-in", async (req, res) => {
       return res.status(401).send("verifique se os dados foram inseridos corretamente");
     }
 
-    res.status(200).send(user.token, user.name);
+    res.status(200).send({token: user.token, name: user.name});
   } catch (err) {
     res.status(500).send(err);
   }
