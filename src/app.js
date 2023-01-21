@@ -1,28 +1,28 @@
 import express, { json } from "express";
-import { MongoClient, ObjectId } from "mongodb";
-import * as dotenv from "dotenv";
 import cors from "cors";
 import dayjs from "dayjs";
 import bcrypt, { hash } from "bcrypt";
 import { v4 as uuid } from "uuid";
 import { validationSignUp, validationBalance } from "./schemas/index.js";
+import db from "./config/database.js";
 
 const app = express();
-dotenv.config();
+
 app.use(cors());
 app.use(json());
-
-const mongoClient = new MongoClient(process.env.DATABASE_URL);
 const PORT = 5000;
-let db;
 
-try {
-  await mongoClient.connect();
-} catch (err) {
-  console.log(err);
-}
 
-db = mongoClient.db();
+// const mongoClient = new MongoClient(process.env.DATABASE_URL);
+// let db;
+
+// try {
+//   await mongoClient.connect();
+// } catch (err) {
+//   console.log(err);
+// }
+
+// db = mongoClient.db();
 const records = db.collection("records");
 const users = db.collection("users");
 
@@ -56,7 +56,7 @@ app.post("/sign-in", async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
 
     if (!user || !match) {
-      return res.status(401).send("verifique se os dados foram inseridos corretamente");
+      return res.status(409).send("verifique se os dados foram inseridos corretamente");
     }
 
     res.status(200).send({ token: user.token, name: user.name });
@@ -66,17 +66,19 @@ app.post("/sign-in", async (req, res) => {
 });
 
 app.post("/income", async (req, res) => {
-  const date = dayjs().format("DD/MM");
   const { value, description } = req.body;
+  const body = { value: parseFloat(value), description };
   const { authorization } = req.headers;
   const token = authorization?.replace("Bearer ", "");
-  const { error } = validationBalance.validate(req.body, { abortEarly: false });
+
+  const { error } = validationBalance.validate(body, { abortEarly: false });
 
   if (error) return res.status(422).send({ message: error.details.map((m) => m.message) });
 
   try {
+    const date = dayjs().format("DD/MM");
     const document = {
-      value: value.toFixed(2),
+      value: parseFloat(value).toFixed(2),
       description,
       date,
       type: "income",
@@ -90,24 +92,28 @@ app.post("/income", async (req, res) => {
 });
 
 app.post("/expense", async (req, res) => {
-  const date = dayjs().format("DD/MM");
   const { value, description } = req.body;
+  const body = { value: parseFloat(value), description };
   const { authorization } = req.headers;
   const token = authorization?.replace("Bearer ", "");
-  const { error } = validationBalance.validate(req.body, { abortEarly: false });
 
+  const { error } = validationBalance.validate(body, { abortEarly: false });
   if (error) return res.status(422).send({ message: error.details.map((m) => m.message) });
+  console.log(parseFloat(value));
 
   try {
+    const date = dayjs().format("DD/MM");
     const document = {
-      value: value.toFixed(2),
+      value: parseFloat(value).toFixed(2),
       description,
       date,
       type: "expense",
       token,
     };
+
     await records.insertOne({ ...document });
-    res.sendStatus(201);
+
+    return res.sendStatus(201);
   } catch (err) {
     res.status(500).send(err);
   }
