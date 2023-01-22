@@ -1,14 +1,15 @@
 import dayjs from "dayjs";
+import { records } from "../config/database.js";
 import { validationBalance } from "../schemas/index.js";
-import db from "../config/database.js";
 
-const records = db.collection("records");
+
+
 
 export const addIncome = async (req, res) => {
   const { value, description } = req.body;
   const body = { value: parseFloat(value), description };
-  const { authorization } = req.headers;
-  const token = authorization?.replace("Bearer ", "");
+  const { token } = res.locals;
+
 
   const { error } = validationBalance.validate(body, { abortEarly: false });
 
@@ -33,12 +34,11 @@ export const addIncome = async (req, res) => {
 export const addExpense = async (req, res) => {
   const { value, description } = req.body;
   const body = { value: parseFloat(value), description };
-  const { authorization } = req.headers;
-  const token = authorization?.replace("Bearer ", "");
+  const { token } = res.locals;
 
   const { error } = validationBalance.validate(body, { abortEarly: false });
+
   if (error) return res.status(422).send({ message: error.details.map((m) => m.message) });
-  console.log(parseFloat(value));
 
   try {
     const date = dayjs().format("DD/MM");
@@ -59,11 +59,9 @@ export const addExpense = async (req, res) => {
 };
 
 export const getRecords = async (req, res) => {
-  const { authorization } = req.headers;
-  const token = authorization?.replace("Bearer ", "");
-  try {
-    const allRecords = await records.find({ token }).toArray();
+  const { allRecords } = res.locals;
 
+  try {
     res.status(200).send(allRecords);
   } catch (err) {
     res.status(500).send(err);

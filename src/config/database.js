@@ -11,5 +11,5 @@ try {
 } catch (err) {
   console.log(err);
 }
-
-export default db;
+export const users = db.collection("users");
+export const records = db.collection("records");

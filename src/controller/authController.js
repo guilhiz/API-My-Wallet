@@ -1,12 +1,8 @@
 import bcrypt, { hash } from "bcrypt";
 import { v4 as uuid } from "uuid";
 import dayjs from "dayjs";
-import db from "../config/database.js";
+import { users } from "../config/database.js";
 import { validationSignUp } from "../schemas/index.js";
-
-
-const users = db.collection("users");
-
 
 export const signUp = async (req, res) => {
   const { name, email, password } = req.body;
