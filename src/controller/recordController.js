@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import { ObjectId } from "mongodb";
 import { records } from "../config/database.js";
 
 export const addIncome = async (req, res) => {
@@ -52,3 +53,16 @@ export const getRecords = async (req, res) => {
     res.status(500).send(err);
   }
 };
+
+export const deleteRecord = async (req, res) => {
+  const {id} = req.params
+
+  try {
+    await records.deleteOne({_id: new ObjectId(id)})
+
+    res.sendStatus(200)
+  } catch (err) {
+    res.status(500).send(err)
+  }
+
+}
