@@ -1,19 +1,9 @@
 import dayjs from "dayjs";
 import { records } from "../config/database.js";
-import { validationBalance } from "../schemas/index.js";
-
-
-
 
 export const addIncome = async (req, res) => {
   const { value, description } = req.body;
-  const body = { value: parseFloat(value), description };
   const { token } = res.locals;
-
-
-  const { error } = validationBalance.validate(body, { abortEarly: false });
-
-  if (error) return res.status(422).send({ message: error.details.map((m) => m.message) });
 
   try {
     const date = dayjs().format("DD/MM");
@@ -33,12 +23,7 @@ export const addIncome = async (req, res) => {
 
 export const addExpense = async (req, res) => {
   const { value, description } = req.body;
-  const body = { value: parseFloat(value), description };
   const { token } = res.locals;
-
-  const { error } = validationBalance.validate(body, { abortEarly: false });
-
-  if (error) return res.status(422).send({ message: error.details.map((m) => m.message) });
 
   try {
     const date = dayjs().format("DD/MM");
