@@ -10,7 +10,7 @@ export const tokenMiddleware = async (req, res, next) => {
     const allRecords = await records.find({ token }).toArray();
 
     res.locals.token = token;
-    res.locals.allRecords = allRecords
+    res.locals.allRecords = allRecords;
 
     next();
   } catch (err) {

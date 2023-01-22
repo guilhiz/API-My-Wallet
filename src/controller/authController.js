@@ -3,7 +3,6 @@ import { v4 as uuid } from "uuid";
 import dayjs from "dayjs";
 import { users } from "../config/database.js";
 
-
 export const signUp = async (req, res) => {
   const { name, email, password } = req.body;
 

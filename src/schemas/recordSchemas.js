@@ -1,4 +1,4 @@
-import joi from "joi"
+import joi from "joi";
 
 export const recordSchemas = joi.object({
   value: joi.number().precision(2).min(2).required(),

@@ -1,5 +1,3 @@
-import { tokenMiddleware } from "./tokenMiddleware.js";
-import { recordSchemaMiddleware } from "./recordSchemaMiddleware.js";
-import { authSchemaMiddleware } from "./authSchemaMiddleware.js";
-
-export { tokenMiddleware, recordSchemaMiddleware, authSchemaMiddleware };
+export { tokenMiddleware } from "./tokenMiddleware.js";
+export { recordSchemaMiddleware } from "./recordSchemaMiddleware.js";
+export { authSchemaMiddleware } from "./authSchemaMiddleware.js";
