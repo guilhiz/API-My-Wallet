@@ -55,14 +55,30 @@ export const getRecords = async (req, res) => {
 };
 
 export const deleteRecord = async (req, res) => {
-  const {id} = req.params
+  const { id } = req.params;
 
   try {
-    await records.deleteOne({_id: new ObjectId(id)})
+    await records.deleteOne({ _id: new ObjectId(id) });
 
+    res.sendStatus(200);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
+export const editRecord = async (req, res) => {
+  const { value, description } = req.body;
+  const { id } = req.params;
+
+  try {
+    const date = dayjs().format("DD/MM");
+    await records.updateOne(
+      { _id: ObjectId(id) },
+      { $set: { value: parseFloat(value).toFixed(2), description, date } }
+    );
+    
     res.sendStatus(200)
   } catch (err) {
-    res.status(500).send(err)
+    res.status(500).send(err);
   }
-
-}
+};
