@@ -2,13 +2,10 @@ import bcrypt, { hash } from "bcrypt";
 import { v4 as uuid } from "uuid";
 import dayjs from "dayjs";
 import { users } from "../config/database.js";
-import { signUpSchemas } from "../schemas/index.js";
+
 
 export const signUp = async (req, res) => {
   const { name, email, password } = req.body;
-  const { error } = signUpSchemas.validate(req.body, { abortEarly: false });
-
-  if (error) return res.status(422).send({ message: error.details.map((m) => m.message) });
 
   try {
     const isUserExist = await users.findOne({ $or: [{ email }, { name }] });

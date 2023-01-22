@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { recordSchemas } from "../schemas/index.js";
+import { recordSchemas } from "../schemas/recordSchemas.js";
 import { addIncome, addExpense, getRecords } from "../controller/recordController.js";
 import { tokenMiddleware, recordSchemaMiddleware } from "../middleware/index.js";
 
