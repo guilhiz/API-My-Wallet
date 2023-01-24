@@ -76,8 +76,8 @@ export const editRecord = async (req, res) => {
       { _id: ObjectId(id) },
       { $set: { value: parseFloat(value).toFixed(2), description, date } }
     );
-    
-    res.sendStatus(200)
+
+    res.sendStatus(200);
   } catch (err) {
     res.status(500).send(err);
   }
